@@ -43,7 +43,7 @@ function Plan:update(dt)
 			self.movingTask.hovered = true -- Prevent task:update setting to false
 			if self.movingTask.above then
 				-- Unsnap task
-				self.movingTask:removeSnap()
+				self.movingTask:unsnapToAbove()
 			end
 			self.movingTask:move(-dx,-dy)
 		end
@@ -89,6 +89,15 @@ function Plan:mousereleased()
 			if otherBounds.type == 'Rectangle' then -- Exclude cursor
 				-- Other task accepts a child
 				-- TODO insert between Tasks
+				
+				if
+					not otherBounds.parent.below and
+					not self.movingTask.above and
+					self.movingTask.above ~= otherBounds.parent and
+					self.movingTask.below ~= otherBounds.parent
+				then
+						self.movingTask:snapToAbove(otherBounds.parent)
+				end
 			end
 		end
 	end

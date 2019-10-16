@@ -3,7 +3,9 @@ local Task = Class{
 		self.pos = pos
 		self.text = love.graphics.newText(love.graphics.getFont(), text)
 		self.hovered = false
-		self.inCollection = false -- used for snapping logic
+		self.above = nil
+		self.below = nil
+
 		
 		-- Get theme data
 		-- TODO more elegant structure, maybe destructuring pattern
@@ -48,6 +50,19 @@ function Task:update(dt)
 end
 
 
+function Task:snapToAbove(other)
+	other.below = self
+	self.above = other
+
+	local x,y,w,h = other:getBounds()
+	self:moveTo(x, y+h)
+end
+function Task:unsnapToAbove()
+	self.above.below = nil
+	self.above = nil
+end
+
+
 function Task:getBounds()
 	local b = self.bounds
 	return b.x,b.y,b.w,b.h
@@ -57,6 +72,10 @@ function Task:move(x,y)
 	self.pos.x = self.pos.x + x
 	self.pos.y = self.pos.y + y
 	self.bounds:move(x and x or 0, y and y or 0)
+
+	if self.below then
+		self.below:move(x,y)
+	end
 end
 function Task:moveTo(x,y)
 	self.pos.x = x + self.PlanPadding/2
