@@ -15,8 +15,7 @@ function Plan:init()
 	self.camera.scale = 2
 
 	self.tasks = {}
-	table.insert(self.tasks, Task(Vector(0,0), 'finish this program, super long boiiiiiiiiiii'))
-	table.insert(self.tasks, Task(Vector(300,100), 'zoom'))
+	table.insert(self.tasks, Task(Vector(0,0), 'finish this program'))
 end
 
 
@@ -25,7 +24,7 @@ function Plan:update(dt)
 		task:update(dt)
 	end
 	if self.touchingTask then
-		self.touchingTask.hovered = true
+		self.touchingTask:setHovered(true)
 	end
 end
 
@@ -64,7 +63,7 @@ function Plan:mousemoved(x,y,dx,dy,istouch)
 		-- Promote touchingTask to movingTask
 		if self.touchingTask and self.buttonPressed == 1 then
 			self.movingTask = self.touchingTask
-			self.movingTask.hovered = true -- Prevent task:update setting to false
+			self.movingTask:setHovered(true) -- Prevent task:update setting to false
 			if self.movingTask.above then
 				-- Unsnap task
 				self.movingTask:unsnapToAbove()

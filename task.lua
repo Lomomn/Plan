@@ -3,18 +3,14 @@ local Task = Class{
 		self.pos = pos
 		self.text = text
 		self.loveText = love.graphics.newText(love.graphics.getFont(), text)
-		self.hovered = false
-		self.edited = false
 		self.above = nil
 		self.below = nil
+		-- Flags/states, multiple can be set at the same time
+		self.hovered = false
+		self.edited = false
+		self.done = false -- Strikethrough
 
-		-- TODO more elegant structure, maybe destructuring pattern
-		-- is possible to keep code clean
-		self.PlanTextColor = Theme.PlanTextColor or {1,1,1,1}
-		self.PlanBackgroundColor = Theme.PlanBackgroundColor or {1,1,1,0.3}
-		self.PlanBorderColor = Theme.PlanBorderColor or {1,1,1,1}
-		self.PlanPadding = Theme.PlanPadding or 0
-		
+		self:updateStyle() -- Get padding from style before making bounds
 		self.scene = scene or Scene or error('Scene must be provided or made global')
 		self.bounds = self.scene:newRectangle(
 			self.pos.x - self.PlanPadding/2,
@@ -28,13 +24,6 @@ local Task = Class{
 
 
 function Task:draw()
-	self.PlanBackgroundColor = self.hovered and
-		Theme.PlanHoveredBackgroundColor or Theme.PlanBackgroundColor
-	self.PlanTextColor = self.hovered and
-		Theme.PlanHoveredTextColor or Theme.PlanTextColor
-	self.PlanBorderColor = self.edited and
-		Theme.PlanEditedBorderColor or Theme.PlanBorderColor
-
 	for i=0,1 do
 		love.graphics.setColor(i==0 and
 			self.PlanBackgroundColor or self.PlanBorderColor)
@@ -47,7 +36,21 @@ function Task:draw()
 end
 
 function Task:update(dt)
-	self.hovered = false
+	-- self.hovered = false
+end
+
+-- Style updating functions
+function Task:setHovered(b) self.hovered=b; self:updateStyle() end
+function Task:setDone(b) self.done=b; self:updateStyle() end
+function Task:setEdited(b) self.edited=b; self:updateStyle() end
+function Task:updateStyle()
+	-- Restore default
+	local default = Theme.Plan.Default or error('No default theme')
+	local modified = self.hovered and 'Hovered'
+	for k,v in pairs(default) do
+		self[k] = Theme.Plan[modified] and Theme.Plan[modified][k] or v -- Use modified val if exists
+	end
+	
 end
 
 -- Text updating functions
