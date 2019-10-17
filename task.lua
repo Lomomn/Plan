@@ -1,13 +1,13 @@
 local Task = Class{
 	init = function(self, pos, text, scene)
 		self.pos = pos
-		self.text = love.graphics.newText(love.graphics.getFont(), text)
+		self.text = text
+		self.loveText = love.graphics.newText(love.graphics.getFont(), text)
 		self.hovered = false
+		self.edited = false
 		self.above = nil
 		self.below = nil
 
-		
-		-- Get theme data
 		-- TODO more elegant structure, maybe destructuring pattern
 		-- is possible to keep code clean
 		self.PlanTextColor = Theme.PlanTextColor or {1,1,1,1}
@@ -19,8 +19,8 @@ local Task = Class{
 		self.bounds = self.scene:newRectangle(
 			self.pos.x - self.PlanPadding/2,
 			self.pos.y - self.PlanPadding/2,
-			self.text:getWidth() + self.PlanPadding,
-			self.text:getHeight() + self.PlanPadding
+			self.loveText:getWidth() + self.PlanPadding,
+			self.loveText:getHeight() + self.PlanPadding
 		)
 		self.bounds.parent = self -- Set parent ref for collision callbacks
 	end
@@ -32,6 +32,8 @@ function Task:draw()
 		Theme.PlanHoveredBackgroundColor or Theme.PlanBackgroundColor
 	self.PlanTextColor = self.hovered and
 		Theme.PlanHoveredTextColor or Theme.PlanTextColor
+	self.PlanBorderColor = self.edited and
+		Theme.PlanEditedBorderColor or Theme.PlanBorderColor
 
 	for i=0,1 do
 		love.graphics.setColor(i==0 and
@@ -41,28 +43,42 @@ function Task:draw()
 	end
 	
 	love.graphics.setColor(self.PlanTextColor)
-	love.graphics.draw(self.text, self.pos.x, self.pos.y)
+	love.graphics.draw(self.loveText, self.pos.x, self.pos.y)
 end
-
 
 function Task:update(dt)
 	self.hovered = false
 end
 
+-- Text updating functions
+function Task:keypressed(char)
+	if char == 'backspace' then
+		self.text = string.sub(self.text, 1, #self.text-1)
+	else
+		self.text = self.text .. char
+	end
+	self.loveText:set(self.text)
+	self:updateDimensions()
+end
 
+-- Relationship and snapping functions
 function Task:snapToAbove(other)
 	other.below = self
 	self.above = other
 
 	local x,y,w,h = other:getBounds()
 	self:moveTo(x, y+h)
+
+	if self.below then
+		self.below:snapToAbove(self)
+	end
 end
 function Task:unsnapToAbove()
 	self.above.below = nil
 	self.above = nil
 end
 
-
+-- Movement and bounds functions
 function Task:getBounds()
 	local b = self.bounds
 	return b.x,b.y,b.w,b.h
@@ -84,6 +100,9 @@ function Task:moveTo(x,y)
 end
 function Task:updateDimensions()
 	-- Resize on text change event
+	self.bounds:updateDimensions(
+		self.loveText:getWidth() + self.PlanPadding,
+		self.loveText:getHeight() + self.PlanPadding)
 end
 
 return Task

@@ -8,6 +8,7 @@ Theme = require'theme'
 
 function love.load()
 	love.graphics.setDefaultFilter('nearest', 'nearest')
+	love.keyboard.setKeyRepeat(true)
 	Gamestate.registerEvents()
 	Gamestate.switch(Plan)
 end
@@ -20,10 +21,4 @@ end
 
 function love.update(dt)
 
-end
-
-function love.keypressed(key)
-	if key == 'escape' then
-		love.event.quit()
-	end
 end
