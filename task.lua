@@ -77,6 +77,17 @@ function Task:unsnapToAbove()
 	self.above.below = nil
 	self.above = nil
 end
+function Task:getLowest()
+	if not self.below then
+		return self
+	end
+
+	local next = self.below
+	while next.below do -- Keep going until you can't :(
+		next = next.below
+	end
+	return next
+end
 
 -- Movement and bounds functions
 function Task:getBounds()

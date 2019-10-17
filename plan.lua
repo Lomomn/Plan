@@ -45,8 +45,6 @@ function Plan:draw()
 	end
 	-- Scene:draw()
 	self.camera:detach()
-
-	love.graphics.print(tostring(self.movingTask),0,0)
 end
 
 function Plan:mousemoved(x,y,dx,dy,istouch)
@@ -146,15 +144,15 @@ function Plan:keypressed(key)
 			if not self.touchingTask.below then -- Snap to touchingTask
 				newTask:snapToAbove(self.touchingTask)
 			else -- Snap to child, if one is found
-				local next = self.touchingTask.below
-				while next.below do -- Keep going until you can't :(
-					next = next.below
-				end
-				newTask:snapToAbove(next)
+				local lowest = self.touchingTask:getLowest()
+				newTask:snapToAbove(lowest)
 			end
 		else
 			self.movingTask = newTask
 		end
+		self.editingTask = newTask
+		self.editingTask.edited = true
+		love.event.clear() -- Clear events to prevent textinput from firing
 	end
 	if key == 'escape' then -- Quit
 		love.event.quit()
