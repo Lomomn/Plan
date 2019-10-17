@@ -73,7 +73,10 @@ function Plan:mousemoved(x,y,dx,dy,istouch)
 		-- Don't replace touchingTask unless there are no button presses
 		-- because if the cursor moves too fast, it will not be touching
 		-- the task any more, meaning that the camera moves.
-		self.touchingTask = nil
+		if self.touchingTask then
+			self.touchingTask:setHovered(false)
+			self.touchingTask = nil
+		end
 		for _,other in ipairs(Scene:getCollisions(self.mouseCur)) do
 			self.touchingTask = other.parent
 		end
@@ -88,12 +91,11 @@ function Plan:mousepressed(x,y,button,istouch,presses)
 	self.buttonPressed = button
 	if presses >= 2 and self.touchingTask then
 		-- Edit task
-		self.editingTask = self.touchingTask
-		self.editingTask.edited = true
+		self.editingTask = self.touchingTask:setEdited(true)
 	else
 		-- Stop editing task
 		if self.editingTask then
-			self.editingTask.edited = false
+			self.editingTask:setEdited(false)
 			self.editingTask = nil
 		end
 	end
@@ -132,7 +134,7 @@ function Plan:keypressed(key)
 		if key == 'backspace' then
 			self.editingTask:keypressed(key)
 		elseif key == 'return' then
-			self.editingTask.edited = nil
+			self.editingTask:setEdited(false)
 			self.editingTask = nil
 		end
 	elseif key == 'n' then -- New Task
@@ -149,8 +151,7 @@ function Plan:keypressed(key)
 		else
 			self.movingTask = newTask
 		end
-		self.editingTask = newTask
-		self.editingTask.edited = true
+		self.editingTask = newTask:setEdited(true)
 		love.event.clear() -- Clear events to prevent textinput from firing
 	end
 	if key == 'escape' then -- Quit

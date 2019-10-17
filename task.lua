@@ -40,17 +40,19 @@ function Task:update(dt)
 end
 
 -- Style updating functions
-function Task:setHovered(b) self.hovered=b; self:updateStyle() end
-function Task:setDone(b) self.done=b; self:updateStyle() end
-function Task:setEdited(b) self.edited=b; self:updateStyle() end
+function Task:setHovered(b) self.hovered=b; self:updateStyle(); return self end
+function Task:setDone(b) self.done=b; self:updateStyle(); return self end
+function Task:setEdited(b) self.edited=b; self:updateStyle(); return self end
 function Task:updateStyle()
 	-- Restore default
 	local default = Theme.Plan.Default or error('No default theme')
-	local modified = self.hovered and 'Hovered'
+	local modified =
+		self.edited and 'Edited' or
+		self.hovered and 'Hovered' or
+		self.done and 'Done'
 	for k,v in pairs(default) do
 		self[k] = Theme.Plan[modified] and Theme.Plan[modified][k] or v -- Use modified val if exists
 	end
-	
 end
 
 -- Text updating functions
