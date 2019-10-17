@@ -141,7 +141,20 @@ function Plan:keypressed(key)
 	elseif key == 'n' then -- New Task
 		local newTask = Task(Vector(self.mouseCur:getPoints()), 'New Task')
 		table.insert(self.tasks, newTask)
-		self.movingTask = newTask
+		
+		if self.touchingTask then
+			if not self.touchingTask.below then -- Snap to touchingTask
+				newTask:snapToAbove(self.touchingTask)
+			else -- Snap to child, if one is found
+				local next = self.touchingTask.below
+				while next.below do -- Keep going until you can't :(
+					next = next.below
+				end
+				newTask:snapToAbove(next)
+			end
+		else
+			self.movingTask = newTask
+		end
 	end
 	if key == 'escape' then -- Quit
 		love.event.quit()
