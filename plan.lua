@@ -1,3 +1,5 @@
+local json = require'lib.json.json'
+
 local Task = require'task'
 Scene = require'collisions'() -- Init global collision scene
 
