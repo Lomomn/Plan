@@ -13,7 +13,9 @@ return {
 		},
 		Done = {
 			PlanTextColor = {1,1,1,0.5},
-			StrikethroughColor = {1,1,1,0.7}
+			PlanBackgroundColor = {1,1,1,0.1},
+			StrikethroughColor = {1,1,1,0.7},
+			PlanBorderColor = {1,1,1,0}
 		},
 		Edited = {
 			PlanBorderColor = {0,1,0,1}

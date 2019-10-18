@@ -25,6 +25,7 @@ local Task = Class{
 
 function Task:draw()
 	for i=0,1 do
+		-- Draw background then border
 		love.graphics.setColor(i==0 and
 			self.PlanBackgroundColor or self.PlanBorderColor)
 		love.graphics.rectangle(i==0 and 'fill' or 'line',
@@ -33,6 +34,11 @@ function Task:draw()
 	
 	love.graphics.setColor(self.PlanTextColor)
 	love.graphics.draw(self.loveText, self.pos.x, self.pos.y)
+
+	if self.done then
+		local x,y,w,h = self:getBounds()
+		love.graphics.line(x, y+h/2, x+w, y+h/2)
+	end
 end
 
 function Task:update(dt)
