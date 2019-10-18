@@ -11,12 +11,21 @@ function Plan:init()
 	self.editingTask = nil -- Task which has keyboard input
 
 	self.dx, self.dy = 0, 0
+	self.backgroundGridSize = 32 -- Space between background points
 	self.camera = Camera(0, 0)
 	self.camera:lookAt(0, 0)
 	self.camera.scale = 2
+	self.focussed = true
 
 	self.tasks = {}
 	table.insert(self.tasks, Task(Vector(0,0), 'finish this program'))
+
+	self:generateBackground()
+end
+
+
+function Plan:save() -- Save all tasks to JSON
+
 end
 
 
@@ -27,34 +36,39 @@ function Plan:update(dt)
 	if self.touchingTask then
 		self.touchingTask:setHovered(true)
 	end
+
+	if not self.focussed then
+		if dt < 1/10 then -- Cut the FPS when window isn't focussed
+			love.timer.sleep(1/10 - dt)
+		end
+	end
 end
 
 
 function Plan:wheelmoved(x, y)
 	local newScale = self.camera.scale + (y / 10)
-	if newScale > 0.1 then
+	if newScale > 0.1 then -- Limit zoom so it doesn't invert
 		self.camera.scale = newScale
 	end
 end
 
+function Plan:generateBackground()
+	self.backgroundPoints = {}
+	local p,w,h = {}, love.graphics.getDimensions()
+	for x=-w/2,w/2,self.backgroundGridSize do -- Draw grid pattern
+		for y=-h/2,h/2,self.backgroundGridSize do
+			table.insert(self.backgroundPoints, {x, y})
+		end
+	end
+end
 
 function Plan:draw()
-	
 	self.camera:attach()
-	-- TODO don't rebuild points. Just use % to wrap and
-	-- only rebuild on resize
 	if self.camera.scale >= 0.9 then
-		local p,s,w,h = {}, 32, love.graphics.getDimensions()
-		for x=-w/2,w/2,s do -- Draw grid pattern
-			for y=-h/2,h/2,s do
-				table.insert(p, {x, y})
-			end
-		end
-
 		local x,y = self.camera:position()
-		love.graphics.translate(x-x%s, y-y%s) -- Offset background drawing
-		love.graphics.points(p)
-		love.graphics.translate(-x+x%s, -y+y%s) -- Reset the offset
+		love.graphics.translate(x-x%self.backgroundGridSize, y-y%self.backgroundGridSize) -- Offset background drawing
+		love.graphics.points(self.backgroundPoints)
+		love.graphics.translate(-x+x%self.backgroundGridSize, -y+y%self.backgroundGridSize) -- Reset the offset
 	end
 	
 	for _,task in ipairs(self.tasks) do -- Draw tasks
@@ -63,8 +77,9 @@ function Plan:draw()
 	-- Scene:draw()
 	self.camera:detach()
 
-	love.graphics.print(self.camera.scale)
+	love.graphics.print(love.timer.getFPS())
 end
+
 
 function Plan:mousemoved(x,y,dx,dy,istouch)
 	-- Fix dx and dy to account for zoom/scale
@@ -192,6 +207,15 @@ end
 
 function Plan:leave()
 
+end
+
+
+function Plan:resize()
+	self:generateBackground()
+end
+
+function Plan:focus(f)
+	self.focussed = f
 end
 
 

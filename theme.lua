@@ -2,7 +2,7 @@ return {
 	Plan = {
 		Default = {
 			PlanTextColor = {1,1,1,1},
-			PlanBackgroundColor = {1,1,1,0.3},
+			PlanBackgroundColor = {0.3,0.3,0.3,1},
 			PlanBorderColor = {1,1,1,1},
 			PlanPadding = 10,
 			StrikethroughColor = {0,0,0,0.0}
