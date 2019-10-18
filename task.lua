@@ -42,7 +42,6 @@ function Task:draw()
 end
 
 function Task:update(dt)
-	-- self.hovered = false
 end
 
 -- Style updating functions
@@ -125,6 +124,21 @@ function Task:updateDimensions()
 	self.bounds:updateDimensions(
 		self.loveText:getWidth() + self.PlanPadding,
 		self.loveText:getHeight() + self.PlanPadding)
+end
+
+-- Representation functions
+function Task:save(t)
+	local children = t or {}
+	if self.below then -- Save children
+		table.insert(children, self.below:save(children))
+	end
+	return {
+		x = self.pos.x,
+		y = self.pos.y,
+		text = self.text,
+		done = self.done,
+		children = (not t) and children or nil -- Save all children
+	}
 end
 
 return Task

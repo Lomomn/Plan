@@ -20,14 +20,51 @@ function Plan:init()
 	self.focussed = true
 
 	self.tasks = {}
-	table.insert(self.tasks, Task(Vector(0,0), 'finish this program'))
+	self:load()
 
 	self:generateBackground()
 end
 
-
+function Plan:load() -- Load tasks from JSON
+	local file = love.filesystem.read('test.json')
+	if file then
+		taskTable = json.decode(file)
+		if taskTable then -- Load tasks into self.tasks
+			for k,v in pairs(taskTable) do
+				local task = Task(Vector(v.x, v.y), v.text, Scene)
+				task:setDone(v.done)
+				if v.children then -- Add all children
+					local lastChild = task -- Previous child to snap to
+					for i=#v.children, 1, -1 do
+						local j = v.children[i]
+						local child = Task(Vector(j.x, j.y), j.text, Scene)
+						child:setDone(j.done)
+						child:snapToAbove(lastChild)
+						table.insert(self.tasks, child)
+						lastChild = child
+					end
+				end
+				table.insert(self.tasks, task)
+			end
+		end
+	end
+end
 function Plan:save() -- Save all tasks to JSON
+	local taskTable = {}
 
+	local taskData = 0
+	for _,task in ipairs(self.tasks) do
+		if not task.above then -- Top-level Task
+			taskData = task:save()
+			
+			table.insert(taskTable, taskData)
+		end
+	end
+
+	local jsonFile = json.encode(taskTable)
+	local success, err = love.filesystem.write(
+		'test.json',
+		jsonFile)
 end
 
 
@@ -124,6 +161,7 @@ function Plan:mousemoved(x,y,dx,dy,istouch)
 		self.movingTask:move(-self.dx,-self.dy)
 	end
 end
+
 function Plan:mousepressed(x,y,button,istouch,presses)
 	self.buttonPressed = button
 	if presses >= 2 and self.touchingTask then
@@ -133,6 +171,7 @@ function Plan:mousepressed(x,y,button,istouch,presses)
 		-- Stop editing task
 		if self.editingTask then
 			self.editingTask:setEdited(false)
+			self:save() -- Save after editing a task
 			self.editingTask = nil
 		end
 	end
@@ -143,6 +182,7 @@ function Plan:mousereleased(x,y,button,istouch,presses)
 	if self.touchingTask then
 		if button == 3 then -- Middle click
 			self.touchingTask:setDone(not self.touchingTask.done)
+			self:save()
 		elseif button == 2 then -- Right click
 			-- Open context menu
 			-- TODO
@@ -165,6 +205,7 @@ function Plan:mousereleased(x,y,button,istouch,presses)
 				end
 			end
 		end
+		self:save() -- Save all positions of tasks
 	end
 
 	self.movingTask = nil
@@ -182,6 +223,7 @@ function Plan:keypressed(key)
 			self.editingTask:keypressed(key)
 		elseif key == 'return' then
 			self.editingTask:setEdited(false)
+			self:save() -- Save after editing a task
 			self.editingTask = nil
 		end
 	elseif key == 'n' then -- New Task
