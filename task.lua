@@ -61,9 +61,16 @@ function Task:updateStyle()
 end
 
 -- Text updating functions
-function Task:keypressed(char)
+function Task:keypressed(char, ctrl)
 	if char == 'backspace' then
-		self.text = string.sub(self.text, 1, #self.text-1)
+		if ctrl then
+			local rev = string.reverse(self.text)
+			local i = string.find(rev, ' ')
+			local to = i and string.len(self.text)-i or 0
+			self.text = string.sub(self.text, 1, to)
+		else
+			self.text = string.sub(self.text, 1, #self.text-1)
+		end
 	else
 		self.text = self.text .. char
 	end

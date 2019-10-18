@@ -220,7 +220,7 @@ end
 function Plan:keypressed(key)
 	if self.editingTask then -- handle specific cases
 		if key == 'backspace' then
-			self.editingTask:keypressed(key)
+			self.editingTask:keypressed(key, love.keyboard.isDown('lctrl', 'rctrl'))
 		elseif key == 'return' then
 			self.editingTask:setEdited(false)
 			self:save() -- Save after editing a task
