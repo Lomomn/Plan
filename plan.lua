@@ -116,7 +116,7 @@ function Plan:draw()
 	-- Scene:draw()
 	self.camera:detach()
 
-	love.graphics.print(love.timer.getFPS())
+	-- love.graphics.print(love.timer.getFPS())
 end
 
 
@@ -263,9 +263,9 @@ function Plan:keypressed(key)
 			self:save() -- Save after deletions
 		end
 	end
-	if key == 'escape' then -- Quit
-		love.event.quit()
-	end
+	-- if key == 'escape' then -- Quit
+	-- 	love.event.quit()
+	-- end
 end
 
 
