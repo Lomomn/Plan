@@ -242,6 +242,26 @@ function Plan:keypressed(key)
 		end
 		self.editingTask = newTask:setEdited(true)
 		love.event.clear() -- Clear events to prevent textinput from firing
+	elseif key == 'x' or key == 'delete' then
+		if self.touchingTask then -- Delete the task being touched
+			-- Remove references to other tasks before deleting it
+			local tt = self.touchingTask -- Automatic var just to save space :P
+			if tt.above and tt.below then -- Middle
+				tt.below:snapToAbove(tt.above)
+			elseif not tt.above and tt.below then -- Top
+				tt.below.above = nil
+			elseif tt.above and not tt.below then -- End
+				tt.above.below = nil
+			end
+			for i,task in pairs(self.tasks) do -- Remove task
+				if task == self.touchingTask then
+					table.remove(self.tasks, i)
+					self.touchingTask = nil
+					break
+				end
+			end
+			self:save() -- Save after deletions
+		end
 	end
 	if key == 'escape' then -- Quit
 		love.event.quit()
