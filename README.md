@@ -1,6 +1,7 @@
 ## Plan
 
 A simple program to help you stay organised.
+Requires Love2d 11.1.
 
 Press 'n' anywhere to make a new task.
 Press 'n' on an existing task to add a new task to the end of the chain.
