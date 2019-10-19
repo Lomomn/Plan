@@ -1,9 +1,6 @@
 [submodule "lib/hump"]
 	path = lib/hump
 	url = https://github.com/vrld/hump
-[submodule "lib/json.lua"]
-	path = lib/json.lua
-	url = https://github.com/rxi/json.lua
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/rxi/json.lua
