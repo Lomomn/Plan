@@ -227,7 +227,7 @@ function Plan:keypressed(key)
 			self.editingTask = nil
 		end
 	elseif key == 'n' then -- New Task
-		local newTask = Task(Vector(self.mouseCur:getPoints()), 'New Task')
+		local newTask = Task(Vector(self.mouseCur:getPoints()), '')
 		table.insert(self.tasks, newTask)
 		
 		if self.touchingTask then
